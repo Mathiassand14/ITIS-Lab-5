@@ -16,6 +16,8 @@ from GridWorld import GridWorld
 import numpy as np
 import pygame
 from collections import defaultdict 
+from GetMatrices import EmptyStateMatrix
+import collections
 
 # Initialize the environment
 env = GridWorld()
@@ -36,7 +38,7 @@ clock = pygame.time.Clock()
 
 # INSERT YOUR CODE HERE (1/2)
 # Define data structure for q-table and define the discount factor
-
+state_value = EmptyStateMatrix()
 # END OF YOUR CODE (1/2)
 
 while not exit_program:
@@ -98,10 +100,22 @@ while not exit_program:
         #    done indicating if the game is finished. When the AI is running, 
         #    the game restarts if done=True
 
-        # 1. choose an action
+        max_action = ''
+        for key, value in (state_value[x][y][has_key].items()):
+           # print(key, value)
+            if value == max(state_value[x][y][has_key].values()):
+                max_action = key
+        action = max_action
+        print(max_action)
+        ## 1. choose an action
         # 2. step the environment
         (x, y, has_key), reward, done = env.step(action)
         # 3. update q table
+        state_value[x][y][has_key][action] = reward + 0.9 * max(state_value[x][y][has_key].values())
+
+
+
+
 
         # END OF YOUR CODE (2/2)
     

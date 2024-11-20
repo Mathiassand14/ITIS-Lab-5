@@ -4,6 +4,7 @@
  
 import pygame
 import numpy as np
+from numpy.f2py.crackfortran import parameterpattern
 
 
 class GridWorld():    
@@ -19,7 +20,8 @@ class GridWorld():
     badColor = (192, 30, 30)
     pathColor = (225, 220, 225)
     wallColor = (157, 143, 130)
-    
+
+
     def __init__(self, state=None):
         pygame.init()
         self.reward = 0
