@@ -39,7 +39,7 @@ clock = pygame.time.Clock()
 
 # INSERT YOUR CODE HERE (1/2)
 # Define data structure for q-table and define the discount factor
-state_value = EmptyStateMatrix()
+state_value = EmptyStateMatrix(0)
 # END OF YOUR CODE (1/2)
 
 while not exit_program:
@@ -103,8 +103,6 @@ while not exit_program:
 		#    done indicating if the game is finished. When the AI is running,
 		#    the game restarts if done=True
 		
-		#Get the current state
-		x, y, has_key = env.get_state()
 		#Get the best action
 		action = max(state_value[x][y][has_key].items(), key = lambda item: item[1])[0]
 
@@ -113,6 +111,9 @@ while not exit_program:
 
 		#Update the state value
 		state_value[x][y][has_key][action] = reward + 0.9 * max(state_value[x1][y1][has_key1].values())
+		
+		#Update the state to the new state
+		x, y, has_key = x1, y1, has_key1
 
 		
 		# END OF YOUR CODE (2/2)
@@ -122,5 +123,6 @@ while not exit_program:
 		if action_taken:
 			(x, y, has_key), reward, done = env.step(action)
 			action_taken = False
-
+		
+	
 env.close()
