@@ -54,7 +54,7 @@ while not exit_program:
     
     # Slow down rendering to 5 fps
     if slow and runai:
-        clock.tick(5)       
+        clock.tick(100)
 
     # Automatic reset environment in AI mode
     if done and runai:
@@ -117,6 +117,7 @@ while not exit_program:
 
         # 3. update q table
         Q[current_state][action_num] = reward + gamma*np.max(Q[next_state])
+
         # END OF YOUR CODE (2/2)
     
     # Human controller        

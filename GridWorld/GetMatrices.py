@@ -4,10 +4,11 @@ import pandas  as pd
 
 
 
-def EmptyStateMatrix() -> list:
+def EmptyStateMatrix(initial_value: int = 0) -> list:
 	board = pd.read_csv('board.txt',sep = ' ',header = None)
 	shp = board.shape
-	b = [[[{t: 1000 for t in ['left', 'right', 'up', 'down']} for _ in [0,1]] for _ in range(shp[1])] for _ in range(shp[0])]
+	b = [[[{t: initial_value for t in ['left', 'right', 'up', 'down']} for _ in [0, 1]] for _ in range(shp[1])] for _ in range(
+		shp[0])]
 
 	#for x in range(shp[0]) for y in range(
 
