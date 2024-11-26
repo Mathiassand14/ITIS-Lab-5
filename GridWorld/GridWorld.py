@@ -2,35 +2,49 @@
 
 # Import libraries used for this program
  
-import pygame
+
 import numpy as np
-from Demos.SystemParametersInfo import new_h, new_y
+#from Demos.SystemParametersInfo import new_h, new_y
 from numpy.f2py.crackfortran import parameterpattern
 
 
 class GridWorld():
 	# Rendering?
+	
 	rendering = False
 	
 	# Images
 	filenames = ['person.png', 'key.png', 'door.png', 'death.png']
-	images = [pygame.image.load(file) for file in filenames]
-
+	
+	images = None
+	
 	# Colors
 	goodColor = (30, 192, 30)
 	badColor = (192, 30, 30)
 	pathColor = (225, 220, 225)
 	wallColor = (157, 143, 130)
+	pygame_on = True
 
+	pygame = None
 
-	def __init__(self, state=None):
-		pygame.init()
+	def __init__(self, state=None, pygame_on = True) :
+		self.pygame_on = pygame_on
+		if self.pygame_on:
+			import pygame
+			self.pygame = pygame
+			self.pygame.init()
 		self.reward = 0
 		if state is None:
 			self.x, self.y, self.has_key, self.board, self.score = self.new_game()
 		else:
 			x, y, has_key, board, score = state
 			self.x, self.y, self.has_key, self.board, self.score = x, y, has_key, board.copy(), score
+			
+		
+		if self.pygame_on:
+			self.images = [self.pygame.image.load(file) for file in self.filenames]
+		
+		
 		
 	def get_state(self):
 		return self.x, self.y, self.has_key
@@ -45,80 +59,88 @@ class GridWorld():
 		return (self.x, self.y, self.has_key), self.reward, done
 		
 	def render(self):
-		if not self.rendering:
-			self.init_render()
+		if self.pygame_on:
+			if not self.rendering:
+				self.init_render()
+				
+				
+			# Clear the screen
+			self.screen.fill((187,173,160))
 			
+			border = 3
 			
-		# Clear the screen
-		self.screen.fill((187,173,160))
-		
-		border = 3
-		pygame.draw.rect(self.screen, (187,173,160), pygame.Rect(100,0,600,600))
-		for i in range(10):
-			for j in range(10):
-				val = self.board[i,j]
-				col = self.wallColor if val & 8 else self.pathColor
-				pygame.draw.rect(self.screen, col, pygame.Rect(100+60*i+border,60*j+border,60-2*border,60-2*border))
-				if val>0:
-					x = 105 + 60*i
-					y = 5 + 60*j
-					if val & 4:
-						self.screen.blit(self.images[2], (x, y))
-					if val & 2:
-						self.screen.blit(self.images[1], (x, y))
-					if val & 1:
-						if self.game_over(self.x, self.y, self.has_key, self.board) and not self.won(self.x, self.y, self.has_key, self.board):
-							self.screen.blit(self.images[3], (x, y))
-						else:
-							self.screen.blit(self.images[0], (x, y))
-						
+			if self.pygame_on:
+				self.pygame.draw.rect(self.screen, (187,173,160), self.pygame.Rect(100,0,600,600))
+			for i in range(10):
+				for j in range(10):
+					val = self.board[i,j]
+					col = self.wallColor if val & 8 else self.pathColor
 					
+					self.pygame.draw.rect(self.screen, col, self.pygame.Rect(100+60*i+border,60*j+border,
+						                                                        60-2*border, 60-2*border))
+					if val>0:
+						x = 105 + 60*i
+						y = 5 + 60*j
+						if val & 4:
+							self.screen.blit(self.images[2], (x, y))
+						if val & 2:
+							self.screen.blit(self.images[1], (x, y))
+						if val & 1:
+							if self.game_over(self.x, self.y, self.has_key, self.board) and not self.won(self.x, self.y, self.has_key, self.board):
+								self.screen.blit(self.images[3], (x, y))
+							else:
+								self.screen.blit(self.images[0], (x, y))
+							
+						
 				
 			
-		text = self.scorefont.render("{:}".format(self.score), True, (0,0,0))
-		self.screen.blit(text, (790-text.get_width(), 10))
-		
-		# Draw game over or you won
-		if self.game_over(self.x, self.y, self.has_key, self.board):
-			if self.won(self.x, self.y, self.has_key, self.board):
-				msg = 'Congratulations!'
-				col = self.goodColor
-			else:
-				msg = 'Game over!'
-				col = self.badColor
-			text = self.bigfont.render(msg, True, col)
-			textpos = text.get_rect(centerx=self.background.get_width()/2)
-			textpos.top = 300
-			self.screen.blit(text, textpos)
-
-		# Display
-		pygame.display.flip()
+			text = self.scorefont.render("{:}".format(self.score), True, (0,0,0))
+			self.screen.blit(text, (790-text.get_width(), 10))
+			
+			# Draw game over or you won
+			if self.game_over(self.x, self.y, self.has_key, self.board):
+				if self.won(self.x, self.y, self.has_key, self.board):
+					msg = 'Congratulations!'
+					col = self.goodColor
+				else:
+					msg = 'Game over!'
+					col = self.badColor
+				text = self.bigfont.render(msg, True, col)
+				textpos = text.get_rect(centerx=self.background.get_width()/2)
+				textpos.top = 300
+				self.screen.blit(text, textpos)
+	
+			# Display
+			self.pygame.display.flip()
 
 	def reset(self):
 		self.x, self.y, self.has_key, self.board, self.score = self.new_game()
 
 	def close(self):
-		pygame.quit()
+		if self.pygame_on:
+			self.pygame.quit()
 		
 		
 		
 	def init_render(self):
-		self.screen = pygame.display.set_mode([800, 600])
-		pygame.display.set_caption('Grid World')
-		self.background = pygame.Surface(self.screen.get_size())
-		self.rendering = True
-		self.clock = pygame.time.Clock()
-
-		# Set up game
-		self.bigfont = pygame.font.Font(None, 80)
-		self.scorefont = pygame.font.Font(None, 30)
-		
+		if self.pygame_on:
+			self.screen = self.pygame.display.set_mode([800, 600])
+			self.pygame.display.set_caption('Grid World')
+			self.background = self.pygame.Surface(self.screen.get_size())
+			self.rendering = True
+			self.clock = self.pygame.time.Clock()
+	
+			# Set up game
+			self.bigfont = self.pygame.font.Font(None, 80)
+			self.scorefont = self.pygame.font.Font(None, 30)
+			
 	@staticmethod
 	def game_over(x, y, has_key, board):
 		# Are we on a death square?
 		if board[x,y] & 8:
 			return True
 		
+		# Are we on the door with the key?
 		# Are we on the door with the key?
 		if board[x,y] & 4 and not np.any(board & 2):
 			return True
