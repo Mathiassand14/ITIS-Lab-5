@@ -5,18 +5,18 @@ import time
 
 
 def main():
+	print(multiprocessing.cpu_count())
 	while True:
 		amount = 201
-		res = multiprocessing.Manager().list([None] * amount)  # Use a shared list
-		
+		res = multiprocessing.Manager().list([None] * amount)
 		with multiprocessing.Pool(processes = multiprocessing.cpu_count()) as pool:
 			# Use pool.apply_async to start processes
 			processes = []
 			processes.extend(pool.apply_async(run_game, (
 				None,True, False, False, False, False, False, float(j / 100.), int(j), res))
 			                 for j in range(amount))
-
-			# Get results and handle timeouts (optional)
+			
+			
 			pool.close()  # Close the pool to prevent new processes from being submitted
 			pool.join()  # Wait for all processes to complete
 		

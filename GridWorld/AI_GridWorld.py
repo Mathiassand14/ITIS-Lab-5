@@ -31,7 +31,8 @@ def run_game(
 	action_taken = False,
 	gamma = 0.9,
 	index = 0,
-	res = None):
+	res = None,
+	end = None):
 	
 	if env is None:
 		env = GridWorld(pygame_on = render)
@@ -42,6 +43,10 @@ def run_game(
 	if res is None:
 		res = [None]
 	next_state = env.get_state()
+	
+	if end is None:
+		end = [False]
+	
 	# Game clock
 	if env.pygame_on:
 		clock = env.pygame.time.Clock()
@@ -152,7 +157,7 @@ def run_game(
 			moves += 1
 			if wins == 1000 or deaths == 1000 or moves == 200000:
 				time_elapsed = time.time() - start_time
-				res[index] = deaths, moves, wins, gamma, time_elapsed
+				res[index] = (deaths, moves, wins, gamma, time_elapsed)
 				print(f"thread {index} finished in {time_elapsed:.2f} seconds")
 				return deaths, moves, wins
 			
@@ -163,6 +168,7 @@ def run_game(
 			if action_taken:
 				(x, y, has_key), reward, done = env.step(action)
 				action_taken = False
+
 
 if __name__ == '__main__':
 	#Run the game
