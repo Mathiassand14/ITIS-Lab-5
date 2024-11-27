@@ -9,8 +9,7 @@ def main():
 	while True:
 		amount = 201
 		res = multiprocessing.Manager().list([None] * amount)
-		with multiprocessing.Pool(processes = multiprocessing.cpu_count()) as pool:
-			# Use pool.apply_async to start processes
+		with multiprocessing.Pool(processes = multiprocessing.cpu_count()) as pool:			# Use pool.apply_async to start processes
 			processes = []
 			processes.extend(pool.apply_async(run_game, (
 				None,True, False, False, False, False, False, float(j / 100.), int(j), res))
